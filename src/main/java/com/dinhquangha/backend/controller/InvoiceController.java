@@ -6,9 +6,6 @@ import com.dinhquangha.backend.service.InvoiceService;
 import com.dinhquangha.backend.service.InvoicePdfService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -19,7 +16,6 @@ import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api/invoices")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
@@ -75,8 +71,6 @@ public class InvoiceController {
                     tableId, customerName, itemsList, discountPercent, taxPercent
             );
             return ResponseEntity.ok(invoice);
-        } catch (AccessDeniedException ade) {
-            throw ade;
         } catch (Exception e) {
             throw new RuntimeException("Lỗi tạo hoá đơn: " + e.getMessage(), e);
         }
@@ -154,8 +148,7 @@ public class InvoiceController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("permitAll()")
-    @GetMapping(value = "/{invoiceId}/export-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping("/{invoiceId}/export-pdf")
     public ResponseEntity<byte[]> exportInvoicePdf(@PathVariable Long invoiceId) {
         return invoiceService.findInvoiceById(invoiceId)
                 .map(invoice -> {
